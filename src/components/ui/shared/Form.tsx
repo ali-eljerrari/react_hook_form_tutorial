@@ -1,7 +1,6 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,6 +12,19 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+const schema = yup.object().shape({
+  username: yup.string().required(),
+  email: yup
+    .string()
+    .matches(
+      /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+      "Invalid email format"
+    ),
+  password: yup.string().required(),
+});
 
 const Form = () => {
   const {
@@ -20,15 +32,13 @@ const Form = () => {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm();
+  } = useForm({ resolver: yupResolver(schema) });
   const onSubmit = (data: any) => {
     console.log(data);
   };
 
-  console.log(watch("name")); // watch input value by passing the name of it
-
+  console.log(watch("username")); // watch input value by passing the name of it
   console.log(watch("email")); // watch input value by passing the name of it
-
   console.log(watch("password")); // watch input value by passing the name of it
 
   return (
@@ -40,8 +50,13 @@ const Form = () => {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col space-y-1.5 mb-4">
-            <Label htmlFor="name">Name</Label>
-            <Input id="name" {...register("name")} placeholder="Name..." />
+            <Label htmlFor="username">Username</Label>
+            <Input
+              id="username"
+              {...register("username", { required: true })}
+              placeholder="Username..."
+            />
+            <p>{errors.username?.message}</p>
           </div>
           <div className="flex flex-col space-y-1.5 mb-6">
             <Label htmlFor="email">Email</Label>
@@ -50,6 +65,7 @@ const Form = () => {
               {...register("email", { required: true })}
               placeholder="Email..."
             />
+            <p>{errors.email?.message}</p>
           </div>
           <div className="flex flex-col space-y-1.5 mb-6">
             <Label htmlFor="password">Password</Label>
@@ -58,8 +74,8 @@ const Form = () => {
               {...register("password", { required: true })}
               placeholder="Password..."
             />
+            <p>{errors.password?.message}</p>
           </div>
-          {errors.exampleRequired && <span>This field is required</span>}
           <CardFooter className="flex justify-between mt-8">
             <Button type="submit" className="w-full">
               Submit
@@ -75,4 +91,5 @@ const Form = () => {
     </Card>
   );
 };
+
 export default Form;
